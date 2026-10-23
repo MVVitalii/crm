@@ -1,69 +1,93 @@
-import Image from "next/image";
+import { eq } from 'drizzle-orm';
+import { headers } from 'next/headers';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
-export default function Home() {
+import { SignOutButton } from '@/app/[orgSlug]/sign-out-button';
+import { Brand } from '@/components/brand';
+import { CreateDialog } from '@/components/create-dialog';
+import { Field, FormError, Page, PageHeader, Panel } from '@/components/page';
+import { Preferences } from '@/components/preferences';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { db } from '@/db';
+import { members, organizations } from '@/db/schema';
+import { type Dictionary } from '@/i18n/dictionary';
+import { fill } from '@/i18n/format';
+import { getCopy } from '@/i18n/locale';
+import { auth } from '@/lib/auth';
+import { createOrganization } from '@/server/organization';
+
+export const instant = false;
+
+function OrgForm({ error, dictionary }: { error: string | string[] | undefined; dictionary: Dictionary }) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <form action={createOrganization} className="flex flex-col gap-3">
+      <Field label={dictionary.home.name}>
+        <Input name="name" required minLength={2} />
+      </Field>
+      <FormError>{error === 'name' ? dictionary.home.nameError : null}</FormError>
+      <Button type="submit" className="w-full sm:w-auto sm:self-start">
+        {dictionary.home.create}
+      </Button>
+    </form>
+  );
+}
+
+export default async function Home({ searchParams }: PageProps<'/'>) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) redirect('/login');
+
+  const { error } = await searchParams;
+  const { dictionary } = await getCopy();
+  const rows = await db
+    .select({ name: organizations.name, slug: organizations.slug })
+    .from(members)
+    .innerJoin(organizations, eq(members.organizationId, organizations.id))
+    .where(eq(members.userId, session.user.id));
+
+  return (
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-6 sm:py-8 md:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Brand />
+        <div className="flex flex-wrap items-center gap-2">
+          <Preferences />
+          <SignOutButton />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+      <PageHeader
+        title={dictionary.home.title}
+        description={fill(dictionary.home.greeting, { name: session.user.name })}
+        action={
+          rows.length > 0 ? (
+            <CreateDialog label={dictionary.home.newOrg} title={dictionary.home.newOrg} invalid={error === 'name'}>
+              <OrgForm error={error} dictionary={dictionary} />
+            </CreateDialog>
+          ) : null
+        }
+      />
+      <Page>
+        {rows.length === 0 ? <p className="text-sm text-muted-foreground">{dictionary.home.empty}</p> : null}
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {rows.map((organization) => (
+            <li key={organization.slug}>
+              <Link
+                href={`/${organization.slug}`}
+                className="flex h-full flex-col gap-1 rounded-2xl bg-background p-4 shadow-neo"
+              >
+                <span className="font-medium break-words">{organization.name}</span>
+                <span className="text-sm break-all text-muted-foreground">/{organization.slug}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {rows.length === 0 ? (
+          <Panel>
+            <h2 className="font-heading text-lg font-medium">{dictionary.home.newOrg}</h2>
+            <OrgForm error={error} dictionary={dictionary} />
+          </Panel>
+        ) : null}
+      </Page>
+    </main>
   );
 }
