@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Onest } from 'next/font/google';
 
 import { I18nProvider } from '@/components/i18n-provider';
+import { PressFeedback } from '@/components/press-feedback';
 import { themeBootScript } from '@/components/theme';
 import { getDictionary } from '@/i18n/dictionary';
 import { getLocale } from '@/i18n/locale';
@@ -28,6 +29,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
     <html lang={locale} className={`${sans.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="flex min-h-full flex-col">
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <PressFeedback />
         <I18nProvider locale={locale} dictionary={dictionary}>
           {children}
         </I18nProvider>

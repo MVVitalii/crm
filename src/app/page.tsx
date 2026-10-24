@@ -8,7 +8,7 @@ import { Brand } from '@/components/brand';
 import { CreateDialog } from '@/components/create-dialog';
 import { Field, FormError, Page, PageHeader, Panel } from '@/components/page';
 import { Preferences } from '@/components/preferences';
-import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { Input } from '@/components/ui/input';
 import { db } from '@/db';
 import { members, organizations } from '@/db/schema';
@@ -27,9 +27,7 @@ function OrgForm({ error, dictionary }: { error: string | string[] | undefined; 
         <Input name="name" required minLength={2} />
       </Field>
       <FormError>{error === 'name' ? dictionary.home.nameError : null}</FormError>
-      <Button type="submit" className="w-full sm:w-auto sm:self-start">
-        {dictionary.home.create}
-      </Button>
+      <SubmitButton className="w-full sm:w-auto sm:self-start">{dictionary.home.create}</SubmitButton>
     </form>
   );
 }

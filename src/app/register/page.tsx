@@ -8,7 +8,7 @@ import { Brand } from '@/components/brand';
 import { useI18n } from '@/components/i18n-provider';
 import { Field, FormError } from '@/components/page';
 import { Preferences } from '@/components/preferences';
-import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
 
@@ -53,7 +53,7 @@ export default function RegisterPage() {
             <Input name="password" type="password" autoComplete="new-password" required minLength={8} />
           </Field>
           <FormError>{error}</FormError>
-          <Button type="submit">{dictionary.auth.signUp}</Button>
+          <SubmitButton>{dictionary.auth.signUp}</SubmitButton>
           <Link href="/login" className="text-sm text-muted-foreground underline-offset-4 hover:underline">
             {dictionary.auth.toLogin}
           </Link>

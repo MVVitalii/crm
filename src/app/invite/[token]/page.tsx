@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Brand } from '@/components/brand';
 import { FormError } from '@/components/page';
 import { Preferences } from '@/components/preferences';
-import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { db } from '@/db';
 import { invitations } from '@/db/schema';
 import { fill } from '@/i18n/format';
@@ -63,9 +63,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<'/i
                 </div>
               ) : session.user.email.toLowerCase() === invite.email ? (
                 <form action={acceptInvitation.bind(null, token)}>
-                  <Button type="submit" className="w-full sm:w-auto">
-                    {dictionary.invite.accept}
-                  </Button>
+                  <SubmitButton className="w-full sm:w-auto">{dictionary.invite.accept}</SubmitButton>
                 </form>
               ) : (
                 <p className="text-sm break-words text-muted-foreground">

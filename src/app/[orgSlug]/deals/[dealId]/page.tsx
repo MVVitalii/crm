@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { Field, FormError, PageHeader, Panel } from '@/components/page';
-import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { db } from '@/db';
@@ -67,9 +67,9 @@ export default async function DealPage({ params, searchParams }: PageProps<'/[or
                 </NativeSelect>
               </Field>
               <FormError>{error === 'deal' || error === 'contact' ? dictionary.deals.checkFields : null}</FormError>
-              <Button type="submit" className="w-full sm:w-auto sm:self-start">
+              <SubmitButton type="submit" className="w-full sm:w-auto sm:self-start">
                 {dictionary.deals.save}
-              </Button>
+              </SubmitButton>
             </form>
           ) : (
             <p className="font-heading text-3xl font-medium">{money(deal.value, locale)}</p>
@@ -93,9 +93,9 @@ export default async function DealPage({ params, searchParams }: PageProps<'/[or
                   <Input name="body" required />
                 </Field>
                 <FormError>{error === 'note' ? dictionary.deals.emptyNote : null}</FormError>
-                <Button type="submit" variant="outline" className="w-full sm:w-auto sm:self-start">
+                <SubmitButton type="submit" variant="outline" className="w-full sm:w-auto sm:self-start">
                   {dictionary.deals.addNote}
-                </Button>
+                </SubmitButton>
               </form>
             ) : null}
           </Panel>
@@ -111,9 +111,9 @@ export default async function DealPage({ params, searchParams }: PageProps<'/[or
                       {task.title}
                     </span>
                     {canEdit ? (
-                      <Button type="submit" variant="outline" size="sm" className="w-full sm:w-auto">
+                      <SubmitButton type="submit" variant="outline" size="sm" className="w-full sm:w-auto">
                         {task.done ? dictionary.deals.undo : dictionary.deals.done}
-                      </Button>
+                      </SubmitButton>
                     ) : null}
                   </form>
                 </li>
@@ -125,9 +125,9 @@ export default async function DealPage({ params, searchParams }: PageProps<'/[or
                   <Input name="title" required />
                 </Field>
                 <FormError>{error === 'task' ? dictionary.deals.emptyTask : null}</FormError>
-                <Button type="submit" variant="outline" className="w-full sm:w-auto sm:self-start">
+                <SubmitButton type="submit" variant="outline" className="w-full sm:w-auto sm:self-start">
                   {dictionary.deals.addTask}
-                </Button>
+                </SubmitButton>
               </form>
             ) : null}
           </Panel>

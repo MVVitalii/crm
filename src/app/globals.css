@@ -171,6 +171,65 @@
   box-shadow: var(--neo-inset);
 }
 
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+nav a,
+a.shadow-neo,
+a.shadow-neo-sm {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+button[aria-busy='true'] {
+  opacity: 1;
+}
+
+button:not(:disabled):is(:active, [data-pressed]),
+[role='button']:not([aria-disabled='true']):is(:active, [data-pressed]),
+nav a:is(:active, [data-pressed]),
+a.shadow-neo:is(:active, [data-pressed]),
+a.shadow-neo-sm:is(:active, [data-pressed]) {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: var(--neo-inset);
+}
+
+@keyframes nav-load {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(380%);
+  }
+}
+
+html[data-navigating]::before {
+  content: '';
+  position: fixed;
+  z-index: 70;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 32%;
+  border-radius: 999px;
+  background: var(--primary);
+  pointer-events: none;
+  animation: nav-load 0.9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  nav a,
+  a.shadow-neo,
+  a.shadow-neo-sm {
+    transition: none;
+  }
+
+  html[data-navigating]::before {
+    animation: none;
+    width: 100%;
+  }
+}
+
 html.theme-transition,
 html.theme-transition *,
 html.theme-transition *::before,

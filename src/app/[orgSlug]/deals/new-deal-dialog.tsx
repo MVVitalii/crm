@@ -2,7 +2,7 @@
 
 import { CreateDialog } from '@/components/create-dialog';
 import { Field, FormError } from '@/components/page';
-import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { useI18n } from '@/components/i18n-provider';
@@ -41,9 +41,7 @@ export function NewDealDialog({
           </NativeSelect>
         </Field>
         <FormError>{invalid ? dictionary.deals.check : null}</FormError>
-        <Button type="submit" className="w-full">
-          {dictionary.deals.create}
-        </Button>
+        <SubmitButton className="w-full">{dictionary.deals.create}</SubmitButton>
       </form>
     </CreateDialog>
   );

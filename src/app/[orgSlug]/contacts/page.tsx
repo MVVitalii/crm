@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 
 import { CreateDialog } from '@/components/create-dialog';
 import { EmptyState, Field, FormError, Page, PageHeader, Panel } from '@/components/page';
-import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { Input } from '@/components/ui/input';
 import { db } from '@/db';
 import { contacts } from '@/db/schema';
@@ -39,9 +39,7 @@ function ContactForm({
         <FormError>
           {error === 'name' ? dictionary.contacts.nameError : error === 'email' ? dictionary.contacts.emailError : null}
         </FormError>
-        <Button type="submit" className="w-full sm:w-auto">
-          {dictionary.contacts.add}
-        </Button>
+        <SubmitButton className="w-full sm:w-auto">{dictionary.contacts.add}</SubmitButton>
       </div>
     </form>
   );

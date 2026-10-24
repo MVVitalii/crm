@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
@@ -18,9 +18,34 @@ export function CreateDialog({
 }) {
   const [open, setOpen] = useState(invalid);
   const [seenInvalid, setSeenInvalid] = useState(invalid);
+  const settleTimer = useRef<number | null>(null);
   if (invalid !== seenInvalid) {
     setSeenInvalid(invalid);
     if (invalid) setOpen(true);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (settleTimer.current) window.clearInterval(settleTimer.current);
+    };
+  }, []);
+
+  function closeAfterSubmit(event: FormEvent<HTMLDivElement>) {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (settleTimer.current) window.clearInterval(settleTimer.current);
+    let sawBusy = false;
+    const started = performance.now();
+    settleTimer.current = window.setInterval(() => {
+      const busy = form.querySelector('button[type="submit"]')?.getAttribute('aria-busy') === 'true';
+      if (busy) {
+        sawBusy = true;
+        return;
+      }
+      if (!sawBusy && performance.now() - started < 800) return;
+      if (settleTimer.current) window.clearInterval(settleTimer.current);
+      if (sawBusy) setOpen(false);
+    }, 40);
   }
 
   return (
@@ -35,7 +60,7 @@ export function CreateDialog({
         <DialogHeader className="pr-8">
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <div onSubmit={() => setOpen(false)}>{children}</div>
+        <div onSubmit={closeAfterSubmit}>{children}</div>
       </DialogContent>
     </Dialog>
   );

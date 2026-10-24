@@ -2,7 +2,7 @@ import { and, eq, gt, isNull } from 'drizzle-orm';
 
 import { CreateDialog } from '@/components/create-dialog';
 import { Field, FormError, Page, PageHeader, Panel } from '@/components/page';
-import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ui/submit-button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { db } from '@/db';
@@ -52,9 +52,9 @@ export default async function MembersPage({ params, searchParams }: PageProps<'/
                   </NativeSelect>
                 </Field>
                 <FormError>{error === 'invite' ? dictionary.members.inviteError : null}</FormError>
-                <Button type="submit" className="w-full">
+                <SubmitButton type="submit" className="w-full">
                   {dictionary.members.send}
-                </Button>
+                </SubmitButton>
               </form>
             </CreateDialog>
           ) : null
@@ -83,14 +83,14 @@ export default async function MembersPage({ params, searchParams }: PageProps<'/
                     <option value="manager">{dictionary.roles.manager}</option>
                     <option value="viewer">{dictionary.roles.viewer}</option>
                   </NativeSelect>
-                  <Button type="submit" variant="outline" className="w-full sm:w-auto">
+                  <SubmitButton type="submit" variant="outline" className="w-full sm:w-auto">
                     {dictionary.members.save}
-                  </Button>
+                  </SubmitButton>
                 </form>
                 <form action={removeMember.bind(null, orgSlug, person.id)} className="sm:w-auto">
-                  <Button type="submit" variant="outline" className="w-full sm:w-auto">
+                  <SubmitButton type="submit" variant="outline" className="w-full sm:w-auto">
                     {dictionary.members.remove}
-                  </Button>
+                  </SubmitButton>
                 </form>
               </div>
             ) : null}
