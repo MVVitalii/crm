@@ -9,11 +9,15 @@ export function CreateDialog({
   label,
   title,
   invalid,
+  onOpenChange,
+  icon,
   children,
 }: {
   label: string;
   title: string;
   invalid: boolean;
+  onOpenChange?: (open: boolean) => void;
+  icon?: ReactNode;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(invalid);
@@ -44,17 +48,22 @@ export function CreateDialog({
       }
       if (!sawBusy && performance.now() - started < 800) return;
       if (settleTimer.current) window.clearInterval(settleTimer.current);
-      if (sawBusy) setOpen(false);
+      if (sawBusy) change(false);
     }, 40);
   }
 
+  function change(next: boolean) {
+    setOpen(next);
+    onOpenChange?.(next);
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={change}>
       <DialogTrigger
         aria-label={label}
         className="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-background text-primary shadow-neo-sm active:shadow-neo-in"
       >
-        <Plus className="size-4" aria-hidden />
+        {icon ?? <Plus className="size-4" aria-hidden />}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="pr-8">

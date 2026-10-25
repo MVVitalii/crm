@@ -203,6 +203,7 @@ function Column({
   canEdit,
   contacts,
   invalid,
+  contactError,
 }: {
   stage: Stage;
   deals: BoardDeal[];
@@ -210,6 +211,7 @@ function Column({
   canEdit: boolean;
   contacts: DealContact[];
   invalid: boolean;
+  contactError: 'name' | 'email' | null;
 }) {
   const { setNodeRef } = useDroppable({ id: stage });
   const items = byPosition(deals, stage);
@@ -219,7 +221,11 @@ function Column({
       <ColumnHeading
         stage={stage}
         count={items.length}
-        action={stage === 'lead' && canEdit ? <NewDealDialog orgSlug={orgSlug} contacts={contacts} invalid={invalid} /> : null}
+        action={
+          stage === 'lead' && canEdit ? (
+            <NewDealDialog orgSlug={orgSlug} contacts={contacts} invalid={invalid} contactError={contactError} />
+          ) : null
+        }
       />
       <SortableContext items={items.map((deal) => deal.id)} strategy={verticalListSortingStrategy}>
         {items.map((deal) => (
@@ -236,12 +242,14 @@ export function DealBoard({
   deals,
   contacts,
   invalid,
+  contactError,
 }: {
   orgSlug: string;
   canEdit: boolean;
   deals: BoardDeal[];
   contacts: DealContact[];
   invalid: boolean;
+  contactError: 'name' | 'email' | null;
 }) {
   const [items, setItems] = useState(deals);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -310,7 +318,11 @@ export function DealBoard({
               <ColumnHeading
                 stage={stage}
                 count={column.length}
-                action={stage === 'lead' && canEdit ? <NewDealDialog orgSlug={orgSlug} contacts={contacts} invalid={invalid} /> : null}
+                action={
+                  stage === 'lead' && canEdit ? (
+                    <NewDealDialog orgSlug={orgSlug} contacts={contacts} invalid={invalid} contactError={contactError} />
+                  ) : null
+                }
               />
               {column.map((deal) => (
                 <article key={deal.id} className={cardClass}>
@@ -347,7 +359,16 @@ export function DealBoard({
       >
         <div className={boardRowClass}>
           {stages.map((stage) => (
-            <Column key={stage} stage={stage} deals={items} orgSlug={orgSlug} canEdit={canEdit} contacts={contacts} invalid={invalid} />
+            <Column
+              key={stage}
+              stage={stage}
+              deals={items}
+              orgSlug={orgSlug}
+              canEdit={canEdit}
+              contacts={contacts}
+              invalid={invalid}
+              contactError={contactError}
+            />
           ))}
         </div>
         <DragOverlay className="rounded-xl bg-background" style={{ boxShadow: 'var(--neo-lift)' }}>

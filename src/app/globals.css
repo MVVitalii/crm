@@ -183,8 +183,8 @@ button[aria-busy='true'] {
   opacity: 1;
 }
 
-button:not(:disabled):is(:active, [data-pressed]),
-[role='button']:not([aria-disabled='true']):is(:active, [data-pressed]),
+button:not(:disabled, [data-press='off']):is(:active, [data-pressed]),
+[role='button']:not([aria-disabled='true'], [data-press='off']):is(:active, [data-pressed]),
 nav a:is(:active, [data-pressed]),
 a.shadow-neo:is(:active, [data-pressed]),
 a.shadow-neo-sm:is(:active, [data-pressed]) {

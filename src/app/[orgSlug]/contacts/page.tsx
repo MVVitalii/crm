@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { Pencil } from 'lucide-react';
 
 import { CreateDialog } from '@/components/create-dialog';
 import { EmptyState, Field, FormError, Page, PageHeader, Panel } from '@/components/page';
@@ -8,7 +9,7 @@ import { db } from '@/db';
 import { contacts } from '@/db/schema';
 import { type Dictionary } from '@/i18n/dictionary';
 import { getCopy } from '@/i18n/locale';
-import { createContact } from '@/server/crm';
+import { createContact, updateContact } from '@/server/crm';
 import { requireMember } from '@/server/tenant';
 
 export const instant = false;
@@ -45,15 +46,57 @@ function ContactForm({
   );
 }
 
+function EditContact({
+  orgSlug,
+  contact,
+  error,
+  dictionary,
+}: {
+  orgSlug: string;
+  contact: { id: string; name: string; email: string | null; phone: string | null };
+  error: string | string[] | undefined;
+  dictionary: Dictionary;
+}) {
+  return (
+    <CreateDialog
+      label={`${dictionary.contacts.edit} ${contact.name}`}
+      title={dictionary.contacts.edit}
+      invalid={error === 'name' || error === 'email'}
+      icon={<Pencil className="size-4" aria-hidden />}
+    >
+      <form
+        key={`${contact.name}:${contact.email ?? ''}:${contact.phone ?? ''}`}
+        action={updateContact.bind(null, orgSlug, contact.id)}
+        className="flex flex-col gap-3"
+      >
+        <Field label={dictionary.contacts.name}>
+          <Input name="name" required defaultValue={contact.name} />
+        </Field>
+        <Field label={dictionary.contacts.email}>
+          <Input name="email" type="email" defaultValue={contact.email ?? ''} />
+        </Field>
+        <Field label={dictionary.contacts.phone}>
+          <Input name="phone" defaultValue={contact.phone ?? ''} />
+        </Field>
+        <FormError>
+          {error === 'name' ? dictionary.contacts.nameError : error === 'email' ? dictionary.contacts.emailError : null}
+        </FormError>
+        <SubmitButton className="w-full">{dictionary.contacts.save}</SubmitButton>
+      </form>
+    </CreateDialog>
+  );
+}
+
 export default async function ContactsPage({ params, searchParams }: PageProps<'/[orgSlug]/contacts'>) {
   const { orgSlug } = await params;
-  const { error } = await searchParams;
+  const { error, contact } = await searchParams;
+  const editing = typeof contact === 'string' ? contact : undefined;
   const { organization, member } = await requireMember(orgSlug);
   const { dictionary } = await getCopy();
   const canEdit = member.role !== 'viewer';
 
   const rows = await db.select().from(contacts).where(eq(contacts.organizationId, organization.id));
-  const invalid = error === 'name' || error === 'email';
+  const invalid = !editing && (error === 'name' || error === 'email');
 
   return (
     <Page>
@@ -63,19 +106,29 @@ export default async function ContactsPage({ params, searchParams }: PageProps<'
         action={
           canEdit && rows.length > 0 ? (
             <CreateDialog label={dictionary.contacts.newContact} title={dictionary.contacts.newContact} invalid={invalid}>
-              <ContactForm orgSlug={orgSlug} error={error} dictionary={dictionary} className="flex flex-col gap-3" />
+              <ContactForm orgSlug={orgSlug} error={invalid ? error : undefined} dictionary={dictionary} className="flex flex-col gap-3" />
             </CreateDialog>
           ) : null
         }
       />
       {rows.length === 0 ? <EmptyState>{dictionary.contacts.empty}</EmptyState> : null}
       <ul className="flex flex-col gap-2">
-        {rows.map((contact) => (
-          <li key={contact.id} className="rounded-2xl bg-background px-4 py-3 shadow-neo-sm">
-            <p className="font-medium break-words">{contact.name}</p>
-            <p className="text-sm break-words text-muted-foreground">
-              {[contact.email, contact.phone].filter(Boolean).join(' · ') || dictionary.contacts.noDetails}
-            </p>
+        {rows.map((row) => (
+          <li key={row.id} className="flex items-start justify-between gap-3 rounded-2xl bg-background px-4 py-3 shadow-neo-sm">
+            <div className="min-w-0">
+              <p className="font-medium break-words">{row.name}</p>
+              <p className="text-sm break-words text-muted-foreground">
+                {[row.email, row.phone].filter(Boolean).join(' · ') || dictionary.contacts.noDetails}
+              </p>
+            </div>
+            {canEdit ? (
+              <EditContact
+                orgSlug={orgSlug}
+                contact={row}
+                error={editing === row.id ? error : undefined}
+                dictionary={dictionary}
+              />
+            ) : null}
           </li>
         ))}
       </ul>

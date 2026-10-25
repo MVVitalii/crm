@@ -2,10 +2,10 @@ import { and, eq } from 'drizzle-orm';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { OptionList } from '@/components/option-list';
 import { Field, FormError, PageHeader, Panel } from '@/components/page';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
 import { db } from '@/db';
 import { contacts, deals, notes, tasks } from '@/db/schema';
 import { money } from '@/i18n/format';
@@ -56,16 +56,16 @@ export default async function DealPage({ params, searchParams }: PageProps<'/[or
               <Field label={dictionary.deals.amount}>
                 <Input name="rubles" type="number" min={0} step={1} defaultValue={deal.value / 100} required />
               </Field>
-              <Field label={dictionary.deals.contact}>
-                <NativeSelect name="contactId" defaultValue={deal.contactId ?? ''}>
-                  <option value="">{dictionary.deals.noContact}</option>
-                  {people.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </NativeSelect>
-              </Field>
+              <OptionList
+                key={deal.contactId ?? ''}
+                name="contactId"
+                label={dictionary.deals.contact}
+                defaultValue={deal.contactId ?? ''}
+                options={[
+                  { id: '', name: dictionary.deals.noContact },
+                  ...people.map((item) => ({ id: item.id, name: item.name })),
+                ]}
+              />
               <FormError>{error === 'deal' || error === 'contact' ? dictionary.deals.checkFields : null}</FormError>
               <SubmitButton type="submit" className="w-full sm:w-auto sm:self-start">
                 {dictionary.deals.save}

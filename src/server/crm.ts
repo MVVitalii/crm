@@ -53,26 +53,83 @@ export async function createContact(slug: string, formData: FormData) {
   revalidatePath(`/${slug}/contacts`);
 }
 
+export async function updateContact(slug: string, contactId: string, formData: FormData) {
+  const { organization } = await managerContext(slug);
+  const rows = await db
+    .select({ id: contacts.id })
+    .from(contacts)
+    .where(and(eq(contacts.id, contactId), eq(contacts.organizationId, organization.id)))
+    .limit(1);
+  if (!rows[0]) notFound();
+
+  const back = `/${slug}/contacts?contact=${contactId}`;
+  const name = z.string().trim().min(1).max(120).safeParse(formData.get('name'));
+  if (!name.success) redirect(`${back}&error=name`);
+
+  const emailRaw = String(formData.get('email') ?? '').trim();
+  const email = emailRaw.length === 0 ? null : emailRaw;
+  if (email && !z.string().email().safeParse(email).success) redirect(`${back}&error=email`);
+
+  const phoneRaw = String(formData.get('phone') ?? '').trim();
+
+  await db
+    .update(contacts)
+    .set({ name: name.data, email, phone: phoneRaw.length === 0 ? null : phoneRaw })
+    .where(eq(contacts.id, contactId));
+
+  revalidatePath(`/${slug}/contacts`);
+  revalidatePath(`/${slug}/deals`);
+}
+
 export async function createDeal(slug: string, formData: FormData) {
   const { organization, session } = await managerContext(slug);
   const title = titleSchema.safeParse(formData.get('title'));
   const rubles = rublesSchema.safeParse(formData.get('rubles'));
   if (!title.success || !rubles.success) redirect(`/${slug}/deals?error=deal`);
 
-  const contactRaw = String(formData.get('contactId') ?? '');
-  const contactId = contactRaw.length === 0 ? null : contactRaw;
-  if (contactId) {
-    const found = await db
-      .select({ id: contacts.id })
-      .from(contacts)
-      .where(and(eq(contacts.id, contactId), eq(contacts.organizationId, organization.id)))
-      .limit(1);
-    if (!found[0]) redirect(`/${slug}/deals?error=contact`);
+  const nameRaw = String(formData.get('contactName') ?? '').trim();
+  let contactId: string | null = null;
+  let newContact: {
+    id: string;
+    organizationId: string;
+    name: string;
+    email: string | null;
+    phone: string | null;
+  } | null = null;
+
+  if (nameRaw.length > 0) {
+    const name = z.string().trim().min(1).max(120).safeParse(nameRaw);
+    if (!name.success) redirect(`/${slug}/deals?error=name`);
+    const emailRaw = String(formData.get('contactEmail') ?? '').trim();
+    const email = emailRaw.length === 0 ? null : emailRaw;
+    if (email && !z.string().email().safeParse(email).success) redirect(`/${slug}/deals?error=email`);
+    const phoneRaw = String(formData.get('contactPhone') ?? '').trim();
+    newContact = {
+      id: crypto.randomUUID(),
+      organizationId: organization.id,
+      name: name.data,
+      email,
+      phone: phoneRaw.length === 0 ? null : phoneRaw,
+    };
+    contactId = newContact.id;
+  } else {
+    const contactRaw = String(formData.get('contactId') ?? '');
+    contactId = contactRaw.length === 0 ? null : contactRaw;
+    if (contactId) {
+      const found = await db
+        .select({ id: contacts.id })
+        .from(contacts)
+        .where(and(eq(contacts.id, contactId), eq(contacts.organizationId, organization.id)))
+        .limit(1);
+      if (!found[0]) redirect(`/${slug}/deals?error=contact`);
+    }
   }
 
   const id = crypto.randomUUID();
 
   await db.transaction(async (tx) => {
+    if (newContact) await tx.insert(contacts).values(newContact);
+
     const [last] = await tx
       .select({ position: max(deals.position) })
       .from(deals)
@@ -90,6 +147,8 @@ export async function createDeal(slug: string, formData: FormData) {
     });
   });
 
+  revalidatePath(`/${slug}/contacts`);
+  revalidatePath(`/${slug}/deals`);
   redirect(`/${slug}/deals/${id}`);
 }
 

@@ -1,10 +1,10 @@
 import { and, eq, gt, isNull } from 'drizzle-orm';
 
 import { CreateDialog } from '@/components/create-dialog';
+import { OptionList } from '@/components/option-list';
 import { Field, FormError, Page, PageHeader, Panel } from '@/components/page';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
 import { db } from '@/db';
 import { invitations, members, user } from '@/db/schema';
 import { fill } from '@/i18n/format';
@@ -44,13 +44,16 @@ export default async function MembersPage({ params, searchParams }: PageProps<'/
                 <Field label={dictionary.members.email}>
                   <Input name="email" type="email" required />
                 </Field>
-                <Field label={dictionary.members.role}>
-                  <NativeSelect name="role" defaultValue="viewer">
-                    <option value="viewer">{dictionary.roles.viewer}</option>
-                    <option value="manager">{dictionary.roles.manager}</option>
-                    <option value="owner">{dictionary.roles.owner}</option>
-                  </NativeSelect>
-                </Field>
+                <OptionList
+                  name="role"
+                  label={dictionary.members.role}
+                  defaultValue="viewer"
+                  options={[
+                    { id: 'viewer', name: dictionary.roles.viewer },
+                    { id: 'manager', name: dictionary.roles.manager },
+                    { id: 'owner', name: dictionary.roles.owner },
+                  ]}
+                />
                 <FormError>{error === 'invite' ? dictionary.members.inviteError : null}</FormError>
                 <SubmitButton type="submit" className="w-full">
                   {dictionary.members.send}
@@ -73,16 +76,18 @@ export default async function MembersPage({ params, searchParams }: PageProps<'/
             {isOwner ? (
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                 <form action={changeMemberRole.bind(null, orgSlug, person.id)} className="flex flex-col gap-2 sm:flex-row">
-                  <NativeSelect
+                  <OptionList
+                    key={person.role}
                     name="role"
+                    ariaLabel={fill(dictionary.members.roleOf, { name: person.name })}
                     defaultValue={person.role}
-                    aria-label={fill(dictionary.members.roleOf, { name: person.name })}
                     className="w-full sm:w-40"
-                  >
-                    <option value="owner">{dictionary.roles.owner}</option>
-                    <option value="manager">{dictionary.roles.manager}</option>
-                    <option value="viewer">{dictionary.roles.viewer}</option>
-                  </NativeSelect>
+                    options={[
+                      { id: 'owner', name: dictionary.roles.owner },
+                      { id: 'manager', name: dictionary.roles.manager },
+                      { id: 'viewer', name: dictionary.roles.viewer },
+                    ]}
+                  />
                   <SubmitButton type="submit" variant="outline" className="w-full sm:w-auto">
                     {dictionary.members.save}
                   </SubmitButton>

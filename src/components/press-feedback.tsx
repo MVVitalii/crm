@@ -21,7 +21,7 @@ export function PressFeedback() {
       if (!(target instanceof Element)) return;
       const control = target.closest('button, a[href], [role="button"]');
       if (!(control instanceof HTMLElement)) return;
-      if (control.matches(':disabled, [aria-disabled="true"]')) return;
+      if (control.matches(':disabled, [aria-disabled="true"], [data-press="off"]')) return;
 
       const previous = timers.get(control);
       if (previous) window.clearTimeout(previous);

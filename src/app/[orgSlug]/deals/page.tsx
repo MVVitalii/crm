@@ -27,7 +27,8 @@ export default async function DealsPage({ params, searchParams }: PageProps<'/[o
         key={rows.map((deal) => `${deal.id}:${deal.stage}:${deal.position}`).join('|')}
         orgSlug={orgSlug}
         canEdit={canEdit}
-        invalid={error === 'deal' || error === 'contact'}
+        invalid={error === 'deal' || error === 'contact' || error === 'name' || error === 'email'}
+        contactError={error === 'name' || error === 'email' ? error : null}
         contacts={people.map((contact) => ({ id: contact.id, name: contact.name }))}
         deals={rows.map((deal) => ({
           id: deal.id,

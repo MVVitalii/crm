@@ -73,6 +73,8 @@ export type Dictionary = {
     nameError: string;
     emailError: string;
     add: string;
+    edit: string;
+    save: string;
   };
   members: {
     title: string;
@@ -189,6 +191,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       nameError: 'Укажи имя.',
       emailError: 'Email указан неверно.',
       add: 'Добавить',
+      edit: 'Редактировать',
+      save: 'Сохранить',
     },
     members: {
       title: 'Участники',
@@ -303,6 +307,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       nameError: 'Enter a name.',
       emailError: 'Email looks wrong.',
       add: 'Add',
+      edit: 'Edit',
+      save: 'Save',
     },
     members: {
       title: 'Members',
