@@ -23,6 +23,7 @@ export type Dictionary = {
     greeting: string;
     empty: string;
     newOrg: string;
+    back: string;
     name: string;
     nameError: string;
     create: string;
@@ -134,6 +135,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       greeting: '{name}, выбери организацию или создай новую.',
       empty: 'Пока нет ни одной организации.',
       newOrg: 'Новая организация',
+      back: 'К организациям',
       name: 'Название',
       nameError: 'Название должно быть от 2 до 80 символов.',
       create: 'Создать',
@@ -247,6 +249,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       greeting: '{name}, open an organization or create one.',
       empty: 'No organizations yet.',
       newOrg: 'New organization',
+      back: 'All organizations',
       name: 'Name',
       nameError: 'Name must be 2 to 80 characters.',
       create: 'Create',

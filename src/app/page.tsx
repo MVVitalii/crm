@@ -3,12 +3,10 @@ import { headers } from 'next/headers';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { SignOutButton } from '@/app/[orgSlug]/sign-out-button';
-import { Brand } from '@/components/brand';
 import { CreateDialog } from '@/components/create-dialog';
 import { Field, FormError, Page, PageHeader, Panel } from '@/components/page';
-import { Preferences } from '@/components/preferences';
 import { SubmitButton } from '@/components/ui/submit-button';
+import { WorkspaceChrome } from '@/components/workspace-chrome';
 import { Input } from '@/components/ui/input';
 import { db } from '@/db';
 import { members, organizations } from '@/db/schema';
@@ -45,26 +43,19 @@ export default async function Home({ searchParams }: PageProps<'/'>) {
     .where(eq(members.userId, session.user.id));
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-6 sm:py-8 md:px-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Brand />
-        <div className="flex flex-wrap items-center gap-2">
-          <Preferences />
-          <SignOutButton />
-        </div>
-      </div>
-      <PageHeader
-        title={dictionary.home.title}
-        description={fill(dictionary.home.greeting, { name: session.user.name })}
-        action={
-          rows.length > 0 ? (
-            <CreateDialog label={dictionary.home.newOrg} title={dictionary.home.newOrg} invalid={error === 'name'}>
-              <OrgForm error={error} dictionary={dictionary} />
-            </CreateDialog>
-          ) : null
-        }
-      />
+    <WorkspaceChrome title={session.user.name}>
       <Page>
+        <PageHeader
+          title={dictionary.home.title}
+          description={fill(dictionary.home.greeting, { name: session.user.name })}
+          action={
+            rows.length > 0 ? (
+              <CreateDialog label={dictionary.home.newOrg} title={dictionary.home.newOrg} invalid={error === 'name'}>
+                <OrgForm error={error} dictionary={dictionary} />
+              </CreateDialog>
+            ) : null
+          }
+        />
         {rows.length === 0 ? <p className="text-sm text-muted-foreground">{dictionary.home.empty}</p> : null}
         <ul className="grid gap-3 sm:grid-cols-2">
           {rows.map((organization) => (
@@ -86,6 +77,6 @@ export default async function Home({ searchParams }: PageProps<'/'>) {
           </Panel>
         ) : null}
       </Page>
-    </main>
+    </WorkspaceChrome>
   );
 }

@@ -1,47 +1,24 @@
-import { Brand } from '@/components/brand';
-import { Preferences } from '@/components/preferences';
+import { WorkspaceChrome } from '@/components/workspace-chrome';
+import { getCopy } from '@/i18n/locale';
 import { requireMember } from '@/server/tenant';
 
 import { OrgNav } from './org-nav';
-import { SignOutButton } from './sign-out-button';
 
 export const instant = false;
 
 export default async function OrgLayout({ children, params }: LayoutProps<'/[orgSlug]'>) {
   const { orgSlug } = await params;
   const { organization } = await requireMember(orgSlug);
+  const { dictionary } = await getCopy();
 
   return (
-    <div className="flex min-h-svh">
-      <aside className="sticky top-0 hidden h-svh w-56 shrink-0 flex-col bg-background px-3 py-5 text-sidebar-foreground md:flex lg:w-60">
-        <div className="px-3">
-          <Brand />
-        </div>
-        <p className="mx-3 mt-6 truncate rounded-2xl bg-background px-3 py-2 text-center text-sm font-medium text-primary shadow-neo">
-          {organization.name}
-        </p>
-        <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
-          <OrgNav orgSlug={orgSlug} placement="sidebar" />
-        </div>
-        <div className="mt-4 flex flex-col gap-2">
-          <Preferences />
-          <SignOutButton className="w-full" />
-        </div>
-      </aside>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex flex-col gap-3 bg-background px-3 py-3 md:hidden">
-          <div className="flex items-center justify-between gap-3">
-            <Brand />
-            <SignOutButton />
-          </div>
-          <Preferences />
-          <p className="truncate rounded-2xl bg-background px-4 py-3 text-center font-heading text-lg font-medium text-primary shadow-neo">
-            {organization.name}
-          </p>
-          <OrgNav orgSlug={orgSlug} placement="bar" />
-        </div>
-        <div className="min-w-0 flex-1 px-3 py-5 sm:px-4 sm:py-6 md:px-8 md:py-8">{children}</div>
-      </div>
-    </div>
+    <WorkspaceChrome
+      title={organization.name}
+      back={{ href: '/', label: dictionary.home.back }}
+      navBar={<OrgNav orgSlug={orgSlug} placement="bar" />}
+      navSidebar={<OrgNav orgSlug={orgSlug} placement="sidebar" />}
+    >
+      {children}
+    </WorkspaceChrome>
   );
 }

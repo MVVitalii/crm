@@ -1,10 +1,12 @@
 'use client';
 
+import { SlidersHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useSyncExternalStore, useTransition } from 'react';
+import { useState, useSyncExternalStore, useTransition, type ReactNode } from 'react';
 
 import { BusyIcon } from '@/components/busy-icon';
 import { useI18n } from '@/components/i18n-provider';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { applyTheme, readThemeChoice, subscribeTheme, themeChoiceOnServer, type ThemeChoice } from '@/components/theme';
 import { type Locale } from '@/i18n/dictionary';
 
@@ -71,5 +73,37 @@ export function Preferences() {
         ))}
       </div>
     </div>
+  );
+}
+
+export function PreferencesMenu({
+  side = 'top',
+  align = 'start',
+  children,
+}: {
+  side?: 'top' | 'bottom';
+  align?: 'start' | 'end';
+  children?: ReactNode;
+}) {
+  const { dictionary } = useI18n();
+  const label = children
+    ? `${dictionary.prefs.theme}, ${dictionary.prefs.language}, ${dictionary.signOut}`
+    : `${dictionary.prefs.theme}, ${dictionary.prefs.language}`;
+
+  return (
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger
+        aria-label={label}
+        className="inline-flex size-7 items-center justify-center rounded-full bg-background text-primary shadow-neo-sm"
+      >
+        <SlidersHorizontal className="size-4" aria-hidden />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side={side} align={align} sideOffset={8} className="w-auto p-3">
+        <div className="flex flex-col gap-2">
+          <Preferences />
+          {children}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
