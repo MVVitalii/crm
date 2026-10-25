@@ -17,11 +17,11 @@ export default async function OrgLayout({ children, params }: LayoutProps<'/[org
         <div className="px-3">
           <Brand />
         </div>
-        <p className="mx-3 mt-6 truncate rounded-full bg-background px-3 py-1.5 text-sm font-medium shadow-neo-sm">
+        <p className="mx-3 mt-6 truncate rounded-2xl bg-background px-3 py-2 text-center text-sm font-medium text-primary shadow-neo">
           {organization.name}
         </p>
         <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
-          <OrgNav orgSlug={orgSlug} />
+          <OrgNav orgSlug={orgSlug} placement="sidebar" />
         </div>
         <div className="mt-4 flex flex-col gap-2">
           <Preferences />
@@ -29,18 +29,16 @@ export default async function OrgLayout({ children, params }: LayoutProps<'/[org
         </div>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-background px-3 py-3 md:hidden">
-          <div className="min-w-0">
+        <div className="flex flex-col gap-3 bg-background px-3 py-3 md:hidden">
+          <div className="flex items-center justify-between gap-3">
             <Brand />
-            <p className="mt-1 truncate text-sm text-muted-foreground">{organization.name}</p>
-          </div>
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Preferences />
             <SignOutButton />
           </div>
-        </div>
-        <div className="overflow-x-auto px-2 py-2 md:hidden">
-          <OrgNav orgSlug={orgSlug} />
+          <Preferences />
+          <p className="truncate rounded-2xl bg-background px-4 py-3 text-center font-heading text-lg font-medium text-primary shadow-neo">
+            {organization.name}
+          </p>
+          <OrgNav orgSlug={orgSlug} placement="bar" />
         </div>
         <div className="min-w-0 flex-1 px-3 py-5 sm:px-4 sm:py-6 md:px-8 md:py-8">{children}</div>
       </div>

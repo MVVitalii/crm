@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { BusyIcon } from '@/components/busy-icon';
 import { useI18n } from '@/components/i18n-provider';
 
-export function OrgNav({ orgSlug }: { orgSlug: string }) {
+export function OrgNav({ orgSlug, placement }: { orgSlug: string; placement: 'bar' | 'sidebar' }) {
   const pathname = usePathname();
   const { dictionary } = useI18n();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function OrgNav({ orgSlug }: { orgSlug: string }) {
   ] as const;
 
   return (
-    <nav className="flex gap-1 md:flex-col">
+    <nav className={placement === 'bar' ? 'grid grid-cols-2 gap-2' : 'flex flex-col gap-1'}>
       {items.map(([label, path]) => {
         const href = `/${orgSlug}/${path}`;
         const active = pathname === href || pathname.startsWith(`${href}/`);
@@ -39,9 +39,13 @@ export function OrgNav({ orgSlug }: { orgSlug: string }) {
               if (!active) setPendingHref(href);
             }}
             className={
-              active
-                ? 'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-background px-3 py-2 text-sm font-medium whitespace-nowrap text-primary shadow-neo-in'
-                : 'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-sm whitespace-nowrap text-muted-foreground hover:text-foreground hover:shadow-neo-sm'
+              placement === 'bar'
+                ? active
+                  ? 'inline-flex min-w-0 items-center justify-center gap-1.5 rounded-2xl bg-background px-3 py-3 text-center text-sm font-medium text-primary shadow-neo-in'
+                  : 'inline-flex min-w-0 items-center justify-center gap-1.5 rounded-2xl bg-background px-3 py-3 text-center text-sm font-medium shadow-neo-sm'
+                : active
+                  ? 'inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-2 text-sm font-medium whitespace-nowrap text-primary shadow-neo-in'
+                  : 'inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm whitespace-nowrap text-muted-foreground hover:text-foreground hover:shadow-neo-sm'
             }
           >
             {pendingHref === href ? <BusyIcon className="size-3.5" /> : null}
