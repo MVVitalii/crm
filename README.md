@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mini CRM
 
-## Getting Started
+**Live demo: [crm-mvvitaliis-projects.vercel.app](https://crm-mvvitaliis-projects.vercel.app/)** — sign up with any email and password.
 
-First, run the development server:
+A multi-tenant CRM built with Next.js: organizations, contacts, a drag-and-drop deal board, role-based access and an audit log. A learning project for practising full-stack work with the App Router, server actions and a relational database.
+
+## Features
+
+- **Organizations (multi-tenant).** Every user can create organizations. All data is scoped to the organization in the URL (`/[orgSlug]/...`), and every server action checks membership first.
+- **Roles.** There are three: `owner`, `manager` and `viewer`.
+  - Owners invite members by link (invitations expire) and change their roles.
+  - Viewers can read but not edit.
+- **Contacts.** Create and edit contacts within an organization.
+- **Deal board.** A kanban with three stages (lead → negotiation → won). Deals move between columns by drag-and-drop with `@dnd-kit`. Each deal has notes and tasks.
+- **Audit log.** Stage changes are written to an audit table and shown on a separate page.
+- **Auth.** Email and password sign-up and login, with Better Auth and database sessions.
+- **i18n.** Russian and English UI. The locale is stored in a cookie.
+- **Responsive layout,** including the mobile menu and board.
+
+## Stack
+
+Next.js 16 (App Router, server actions) · React 19 · TypeScript · PostgreSQL · Drizzle ORM · Better Auth · Zod · Tailwind CSS 4 · @dnd-kit · Vitest · Playwright
+
+## Tests
+
+- **Unit (Vitest), access rules:**
+  - an outsider cannot read an organization's deals;
+  - a viewer cannot move a deal;
+  - a stage change writes exactly one audit row.
+- **E2E (Playwright), the full flow:** register, create an organization, add a contact, create a deal, drag it to another stage and check the audit log.
+
+## Running locally
+
+Create `.env.local`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+DATABASE_URL=postgres://user:password@localhost:5432/crm
+BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_SECRET=any-long-random-string
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm install
+pnpm db:migrate     # apply Drizzle migrations
+pnpm dev            # http://localhost:3000
+pnpm test           # unit tests
+pnpm test:e2e       # Playwright end-to-end test
+```
