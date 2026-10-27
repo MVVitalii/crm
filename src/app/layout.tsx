@@ -18,7 +18,19 @@ export const instant = false;
 
 export async function generateMetadata(): Promise<Metadata> {
   const dictionary = getDictionary(await getLocale());
-  return { title: 'CRM', description: dictionary.metaDescription };
+  return {
+    metadataBase: new URL('https://crm-mvvitaliis-projects.vercel.app'),
+    title: 'CRM',
+    description: dictionary.metaDescription,
+    openGraph: {
+      type: 'website',
+      title: 'Mini CRM: Next.js + PostgreSQL',
+      description:
+        'Multi-tenant CRM with organizations, roles, a drag-and-drop deal board and an audit log.',
+      images: [{ url: '/og.png', width: 1200, height: 630 }],
+    },
+    twitter: { card: 'summary_large_image' },
+  };
 }
 
 export default async function RootLayout({ children }: LayoutProps<'/'>) {
