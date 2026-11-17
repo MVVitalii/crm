@@ -48,3 +48,14 @@ pnpm dev            # http://localhost:3000
 pnpm test           # unit tests
 pnpm test:e2e       # Playwright end-to-end test
 ```
+
+## How this was built
+
+This is a learning project. I wrote it with an AI coding assistant (Claude Code), so the first commits are large and close together. I used the project to learn the parts I hadn't done commercially:
+
+- multi-tenant data scoping, where every server action calls `requireMember` before touching data;
+- role checks on the server, not only in the UI;
+- Drizzle migrations and database sessions with Better Auth;
+- an end-to-end test that drives the whole flow in a real browser.
+
+Further work goes through issues and pull requests; see the [issue list](../../issues).
